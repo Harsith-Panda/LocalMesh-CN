@@ -1,5 +1,14 @@
-# Keep planning documents private
+# Private setup runbooks (not part of the assignment submission)
 docs/
+
+# LaTeX intermediates (commit .tex and built PDFs)
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+report/*.fls
+report/*.fdb_latexmk
 
 # Python
 __pycache__/

@@ -43,13 +43,15 @@ The server will start on http://0.0.0.0:3002
 sudo ufw allow 3002/tcp
 ```
 
+This is UTM **LocalMesh - 1**, Port Forward **3002** (Emulated VLAN). Other machines use `http://$YOUR_MAC_IP:3002/`.
+
 ## Testing
 
-From another machine on the LAN:
+From Your Mac or Manohar's Mac:
 ```bash
-curl http://<backend-b-ip>:3002/
-curl http://<backend-b-ip>:3002/api/status
-curl -I http://<backend-b-ip>:3002/api/status
+curl http://$YOUR_MAC_IP:3002/
+curl http://$YOUR_MAC_IP:3002/api/status
+curl -I http://$YOUR_MAC_IP:3002/api/status
 ```
 
 Expected responses:

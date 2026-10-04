@@ -2,87 +2,85 @@
 
 Computer Networks Course Project - Phase 1 & Phase 2
 
+## Chosen setup: Option A
+
+Both Ubuntu backend VMs run on **Your Mac** (UTM **Emulated VLAN** + port forwarding). **Manohar's Mac** is only the nginx edge. Start at `docs/START-HERE.md` (gitignored with the rest of `docs/`).
+
+- UTM VM that forwards **3001** → Backend A
+- UTM **LocalMesh - 1** forwards **3002** → Backend B
+
 ## Project Overview
 
-This project implements a private network service platform where a client machine resolves a private domain name through a custom DNS server, establishes a secure HTTPS connection through a reverse proxy, and receives responses from backend application servers.
+A client resolves a private `.test` name through the team DNS server, opens HTTPS on the reverse proxy, and gets a response from one of two backend servers.
 
 ## Folder Structure
 
 ```
 LocalMesh/
-├── backend-a/           # Backend Server A application code
-├── backend-b/           # Backend Server B application code
-├── config/              # Configuration files
-│   ├── dnsmasq/        # DNS server configuration
-│   ├── nginx/          # Nginx reverse proxy configuration
-│   └── tls/            # TLS certificates and setup
-├── evidence/            # Screenshots, Wireshark captures, test outputs
-├── scripts/             # Helper scripts for setup and testing
-└── README.md           # This file
+├── backend-a/           # Backend Server A (port 3001)
+├── backend-b/           # Backend Server B (port 3002)
+├── config/              # Reference dnsmasq / nginx / TLS notes
+├── evidence/            # Screenshots, captures, test output
+├── report/              # Phase 1 LaTeX report + architecture (commit this)
+├── scripts/             # Optional helpers
+├── docs/                # Private setup runbooks (gitignored)
+└── README.md
 ```
 
-## Network Roles
+## Network Roles (Option A)
 
-- **Mac 1 (Physical)**: Private DNS Server + Test Client
-- **Mac 2 (Physical)**: Edge/Reverse Proxy + Load Balancer
-- **Mac 1 VM (Ubuntu)**: Backend Server A (port 3001)
-- **Mac 2 VM (Ubuntu)**: Backend Server B (port 3002) + Test Client
+- **Your Mac (physical)**: Private DNS (dnsmasq :53) + test client + UTM host
+- **Manohar's Mac (physical)**: Edge / reverse proxy / TLS / load balancer (:8080 → :8443)
+- **UTM VM (forward 3001)**: Backend A, published as `YOUR_MAC_IP:3001`
+- **UTM LocalMesh - 1 (forward 3002)**: Backend B, published as `YOUR_MAC_IP:3002`
 
 ## Network Configuration
 
-- **Mode**: Bridge Network (UTM)
-- **Domain**: `.test` namespace (e.g., app.teamX.test)
-- **Private LAN**: All machines on same Wi-Fi/LAN
+- **Mode**: UTM Emulated VLAN + TCP port forwarding (not Shared Network, not Bridged)
+- **Domain**: `app.localmesh.test` / `api.localmesh.test` (`TEAM=localmesh` in `~/cn-team.env`)
+- **LAN**: Both physical Macs on the same Wi-Fi; guests stay on the UTM NAT subnet
 
-## Quick Start
+## What to follow, in order
 
-### Phase 1 Setup
+1. `docs/START-HERE.md` — topology and reading order
+2. `docs/CN_Project_Doc.pdf` — official requirements (skim)
+3. `docs/architecture-phase1.md` — diagram for Review 1
+4. `docs/0-common-setup.md` — team table, sync points, UTM forwards
+5. One machine file, top to bottom:
+   - Your Mac → `docs/1-mac1-dns-server.md`
+   - Manohar's Mac → `docs/2-mac2-nginx-edge.md`
+   - 3001 VM → `docs/3-ubuntu-vm-a-backend.md`
+   - LocalMesh - 1 (3002) → `docs/4-ubuntu-vm-b-backend.md`
+6. Together → `docs/5-final-verification.md`
+7. Save proof using `evidence/README.md`
 
-1. **Configure LAN**: Connect all machines to same private network
-2. **Setup DNS**: Install and configure dnsmasq on Mac 1
-3. **Build Backends**: Deploy backend applications on VMs
-4. **Configure Edge**: Setup nginx reverse proxy on Mac 2
-5. **Add TLS**: Generate certificates and configure HTTPS
-6. **Test**: Verify end-to-end flow with Wireshark captures
-
-### Phase 2 Extensions
-
-1. **Backup DNS**: Configure secondary DNS resolver
-2. **DNS TTL**: Demonstrate caching and TTL behavior
-3. **Service Isolation**: Restrict backend port access
-4. **HA Failover**: Configure nginx health checks
-5. **Edge Migration**: Implement DNS-based cutover
+`scripts/setup-*.sh` are optional. They do not replace the machine files.
 
 ## Tools Required
 
-- Homebrew
-- dnsmasq
-- nginx
-- OpenSSL
-- Python or Node.js
-- Wireshark
-- curl
-- dig/nslookup
+- Homebrew, dnsmasq, nginx, OpenSSL
+- Python 3, Wireshark, curl, dig/nslookup
+- UTM (two Ubuntu VMs on Your Mac)
 
 ## Deliverables
 
 ### Phase 1
-- Architecture document
-- Configuration bundle
-- Backend source code
-- Evidence folder
+- Main report: `report/phase1-report.pdf` (LaTeX source in the same folder)
+- Architecture handout: `report/architecture-phase1.pdf` (also copied to repo root)
+- Configuration bundle (`config/`)
+- Backend source (`backend-a/`, `backend-b/`)
+- Evidence (`evidence/phase1/`)
 - Live demonstration
 
+Setup walkthroughs stay in `docs/` and are **not** committed.
+
 ### Phase 2
-- Updated architecture document
-- Phase 2 configuration additions
-- Phase 2 evidence
-- Final report
-- Final presentation
+- Updated architecture, configs, evidence
+- Final report and presentation
 
 ## Testing
 
-Run test scripts from the `scripts/` directory:
+After `source ~/cn-team.env` on a Mac:
 
 ```bash
 ./scripts/test-dns.sh
@@ -91,14 +89,7 @@ Run test scripts from the `scripts/` directory:
 ./scripts/test-load-balancing.sh
 ```
 
-## Documentation
-
-Detailed plans and documentation are available in the `docs/` folder (not committed to Git).
-
 ## Team
 
-Team members:
-- [Add team member 1]
-- [Add team member 2]
-- [Add team member 3]
-- [Add team member 4]
+- S. Harsith Priyan
+- Guru Manohar Gupta

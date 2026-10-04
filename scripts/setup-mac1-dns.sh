@@ -1,11 +1,11 @@
 #!/bin/bash
-# Setup script for Mac 1 (DNS Server)
-# This script automates the setup of dnsmasq on Mac 1
+# Setup script for Your Mac (DNS Server)
+# This script automates the setup of dnsmasq on Your Mac
 # Usage: ./setup-mac1-dns.sh
 
 set -e  # Exit on error
 
-echo "=== Mac 1 DNS Server Setup ==="
+echo "=== Your Mac DNS Server Setup ==="
 echo ""
 
 # Check if running on macOS
@@ -38,12 +38,10 @@ echo ""
 # Step 3: Create settings file template
 echo "Step 3: Creating settings file template..."
 cat > ~/cn-team.env <<'EOF'
-export TEAM=teamX                # team name: lowercase letters/digits only, no spaces or _
-export MAC1_IP=CHANGE_ME           # Mac 1: DNS
-export MAC2_IP=CHANGE_ME           # Mac 2: nginx edge
-export UBUNTU_VM_A_IP=CHANGE_ME   # Ubuntu VM A: Backend A
-export UBUNTU_VM_B_IP=CHANGE_ME   # Ubuntu VM B: Backend B
-export COLLEGE_DNS=8.8.8.8         # Mac 1's "DNS server" line from Step 3
+export TEAM=localmesh
+export YOUR_MAC_IP=10.7.12.104
+export MANOHAR_MAC_IP=10.7.2.38
+export COLLEGE_DNS=8.8.8.8
 EOF
 echo 'source ~/cn-team.env' >> ~/.zshrc
 echo "✓ Settings file template created at ~/cn-team.env"
@@ -65,7 +63,7 @@ echo ""
 echo "=== Setup Partially Complete ==="
 echo ""
 echo "Next steps:"
-echo "1. Fill in the team table with all machine IPs"
+echo "1. Fill in the team table with Mac IPs"
 echo "2. Edit ~/cn-team.env with real values (replace CHANGE_ME)"
 echo "3. Run: source ~/cn-team.env"
 echo "4. Continue with manual steps from docs/1-mac1-dns-server.md"

@@ -1,35 +1,7 @@
 # Configuration Files
 
-This directory contains all configuration files for the network services.
+Live copies for team **localmesh** (`~/cn-team.env`).
 
-## Structure
-
-```
-config/
-├── dnsmasq/      # DNS server configuration
-│   └── dnsmasq.conf
-├── nginx/        # Nginx reverse proxy configuration
-│   └── nginx.conf
-└── tls/          # TLS certificates and setup
-    ├── cert.pem
-    ├── key.pem
-    └── setup-notes.md
-```
-
-## dnsmasq Configuration
-
-Configure DNS records for:
-- `app.teamX.test` → Edge machine IP
-- `api.teamX.test` → Edge machine IP
-
-## nginx Configuration
-
-Configure:
-- Reverse proxy to backends
-- Round-robin load balancing
-- TLS/HTTPS termination
-- Upstream servers (Backend A:3001, Backend B:3002)
-
-## TLS Setup
-
-Generate self-signed certificates for app.teamX.test using OpenSSL.
+- Domain: `app.localmesh.test`, `api.localmesh.test` → `10.7.2.38` (Manohar / nginx)
+- DNS listen: `10.7.12.104` (Your Mac)
+- Upstream: `10.7.12.104:3001` (Backend A), `10.7.12.104:3002` (Backend B)

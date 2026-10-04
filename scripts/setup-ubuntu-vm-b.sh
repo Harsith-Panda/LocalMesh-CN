@@ -26,11 +26,11 @@ sudo apt update
 echo "✓ Package list updated"
 echo ""
 
-# Step 2: Install Python 3
-echo "Step 2: Installing Python 3..."
-sudo apt install -y python3
+# Step 2: Install Python 3 and DNS tools
+echo "Step 2: Installing Python 3 and DNS tools..."
+sudo apt install -y python3 dnsutils curl
 python3 --version
-echo "✓ Python 3 installed"
+echo "✓ Python 3 and DNS tools installed"
 echo ""
 
 # Step 3: Configure firewall
@@ -46,12 +46,10 @@ echo ""
 # Step 4: Create settings file template
 echo "Step 4: Creating settings file template..."
 cat > ~/cn-team.env <<'EOF'
-export TEAM=teamX                # team name: lowercase letters/digits only, no spaces or _
-export MAC1_IP=CHANGE_ME           # Mac 1: DNS
-export MAC2_IP=CHANGE_ME           # Mac 2: nginx edge
-export UBUNTU_VM_A_IP=CHANGE_ME   # Ubuntu VM A: Backend A
-export UBUNTU_VM_B_IP=CHANGE_ME   # Ubuntu VM B: Backend B
-export COLLEGE_DNS=8.8.8.8         # Mac 1's "DNS server" line from Step 3
+export TEAM=localmesh
+export YOUR_MAC_IP=10.7.12.104
+export MANOHAR_MAC_IP=10.7.2.38
+export COLLEGE_DNS=8.8.8.8
 EOF
 echo "✓ Settings file template created at ~/cn-team.env"
 echo "   Please edit this file with real values before continuing"
@@ -79,10 +77,10 @@ echo ""
 echo "=== Setup Partially Complete ==="
 echo ""
 echo "Next steps:"
-echo "1. Fill in the team table with all machine IPs"
-echo "2. Edit ~/cn-team.env with real values (replace CHANGE_ME)"
+echo "1. Confirm this is LocalMesh - 1: Emulated VLAN + host 3002 → guest 3002 (Backend B)"
+echo "2. Edit ~/cn-team.env with YOUR_MAC_IP and MANOHAR_MAC_IP"
 echo "3. Run: source ~/cn-team.env"
-echo "4. Copy app.py to ~/cn-backend/"
+echo "4. Copy backend-b/app.py to ~/cn-backend/app.py"
 echo "5. Run: cd ~/cn-backend && python3 app.py"
 echo "6. Continue with manual steps from docs/4-ubuntu-vm-b-backend.md"
 echo ""

@@ -1,0 +1,103 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[margin=1.65cm]{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{float}
+\input{diagrams}
+
+\hypersetup{colorlinks=true,linkcolor=lmNavy,urlcolor=lmTeal}
+
+\titleformat{\section}{\large\bfseries\color{lmNavy}}{\thesection}{0.55em}{}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small LocalMesh architecture}
+\fancyhead[R]{\small Phase 1 $\cdot$ Review 1}
+\fancyfoot[C]{\scriptsize TEAM=\texttt{localmesh}\quad\thepage}
+\renewcommand{\headrulewidth}{0.35pt}
+
+\begin{document}
+\begin{center}
+{\bfseries\Huge\color{lmNavy} LocalMesh}\\[3pt]
+{\large Private Network Service Platform}\\[1pt]
+{\color{lmTeal} Phase 1 architecture}\\[6pt]
+{\small Harsith (DNS + UTM host) \quad$\cdot$\quad Manohar (nginx edge)}\\
+{\small \texttt{app.localmesh.test}\quad 10.7.12.104\quad 10.7.2.38}
+\end{center}
+
+\section{Network topology}
+Two physical Macs share one Wi-Fi LAN. Ubuntu backends are \textbf{UTM guests inside Your Mac}, not extra Wi-Fi hosts. Manohar reaches them only as \texttt{10.7.12.104:3001} and \texttt{:3002}. Guests (\texttt{10.0.2.x}) are not pingable from the LAN. Clients never type a backend address. HTTPS always goes \textbf{client $\to$ Manohar :8443 first}. The dashed arrow is a DNS A-record only.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{\drawTopology}
+\caption{LAN topology. Dashed = DNS A-record to 10.7.2.38. Solid teal = HTTPS to nginx. Backends sit inside Your Mac.}
+\end{figure}
+
+\section{One request}
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{\drawRequestPath}
+\caption{DNS $\to$ TCP $\to$ TLS $\to$ HTTP/2 $\to$ Backend A or B.}
+\end{figure}
+
+\section{Inventory}
+{\small
+\begin{tabular}{@{}llp{4.6cm}p{5.4cm}@{}}
+\toprule
+\textbf{Brief} & \textbf{Machine} & \textbf{LAN identity} & \textbf{Role} \\
+\midrule
+Mac 1 & Your Mac & 10.7.12.104 & dnsmasq :53, UTM host \\
+Mac 2 & Manohar's Mac & 10.7.2.38 & nginx :8080/:8443, TLS, LB \\
+Mac 3 & UTM VM (3001) & 10.7.12.104:3001 & Backend A \\
+Mac 4 & LocalMesh-1 & 10.7.12.104:3002 & Backend B \\
+\bottomrule
+\end{tabular}}
+
+\vspace{7pt}
+\noindent\textit{Settings from} \texttt{\textasciitilde/cn-team.env}:
+\texttt{TEAM=localmesh},
+\texttt{YOUR\_MAC\_IP=10.7.12.104},
+\texttt{MANOHAR\_MAC\_IP=10.7.2.38},
+\texttt{COLLEGE\_DNS=8.8.8.8}.
+
+\section{UTM publication}
+Shared Network has no Port Forward table. Emulated VLAN publishes guests on the host Wi-Fi IP.
+
+\begin{figure}[H]
+\centering
+\drawUtm
+\caption{Host ports 3001 and 3002 are the only backend addresses nginx uses.}
+\end{figure}
+
+\section{Layers}
+\begin{figure}[H]
+\begin{minipage}[t]{0.54\textwidth}
+\drawOsi
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.44\textwidth}
+\drawTls
+\end{minipage}
+\caption{Left: OSI / TCP-IP mapping. Right: private CA trust.}
+\end{figure}
+
+\section{Why this satisfies the brief}
+\begin{itemize}[leftmargin=1.15em,itemsep=2pt]
+  \item Four \emph{roles} exist. Hardware may be combined; the backends remain two processes on two ports.
+  \item Emulated VLAN is hypervisor hosting, not a NAT protocol we implemented.
+  \item Ports 8080/8443 are permitted. The zone is \texttt{.test}, never \texttt{.local}.
+  \item Evidence: \texttt{dig} to 10.7.2.38 via 10.7.12.104\#53; TLSv1.3; issuer \texttt{localmesh Local Root CA}; \texttt{X-Backend} A/B.
+\end{itemize}
+
+\end{document}
