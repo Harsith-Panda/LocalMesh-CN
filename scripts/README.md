@@ -5,24 +5,10 @@ This directory contains helper scripts for setup, testing, and automation.
 ## Available Scripts
 
 ### Setup Scripts
-- `setup-dns.sh` - Install and configure dnsmasq
-- `setup-nginx.sh` - Install and configure nginx
-- `setup-tls.sh` - Generate TLS certificates
-- `setup-backend-a.sh` - Deploy Backend Server A
-- `setup-backend-b.sh` - Deploy Backend Server B
-
-### Test Scripts
-- `test-dns.sh` - Test DNS resolution
-- `test-backend.sh` - Test backend connectivity
-- `test-https.sh` - Test HTTPS connection
-- `test-load-balancing.sh` - Test load balancing
-- `test-caching.sh` - Test HTTP caching
-
-### Diagnostic Scripts
-- `check-network.sh` - Verify network connectivity
-- `check-ports.sh` - Check if ports are accessible
-- `capture-packets.sh` - Start packet capture
-- `flush-dns.sh` - Flush DNS cache
+- `setup-mac1-dns.sh` - Install and configure dnsmasq on Mac 1 (DNS Server)
+- `setup-mac2-nginx.sh` - Install and configure nginx on Mac 2 (Edge/Proxy)
+- `setup-ubuntu-vm-a.sh` - Install and configure Backend A on Ubuntu VM A
+- `setup-ubuntu-vm-b.sh` - Install and configure Backend B on Ubuntu VM B
 
 ## Usage
 
@@ -31,16 +17,66 @@ Make scripts executable:
 chmod +x scripts/*.sh
 ```
 
-Run scripts:
+Run scripts on each machine:
+
+**Mac 1 (DNS Server):**
 ```bash
-./scripts/test-dns.sh
-./scripts/test-load-balancing.sh
+./scripts/setup-mac1-dns.sh
 ```
 
-## Script Templates
+**Mac 2 (nginx Edge):**
+```bash
+./scripts/setup-mac2-nginx.sh
+```
 
-Scripts should include:
-- Error handling
-- Output logging
-- Clear success/failure messages
-- Help documentation
+**Ubuntu VM A (Backend A):**
+```bash
+./scripts/setup-ubuntu-vm-a.sh
+```
+
+**Ubuntu VM B (Backend B):**
+```bash
+./scripts/setup-ubuntu-vm-b.sh
+```
+
+## What These Scripts Do
+
+Each setup script:
+- Installs required dependencies (dnsmasq, nginx, python3)
+- Creates the shared settings file template (`~/cn-team.env`)
+- Gathers network information (IP, gateway, hostname)
+- Configures firewall (on Ubuntu VMs)
+- Creates necessary directories
+- Provides next steps for manual configuration
+
+## Important Notes
+
+1. **Edit `~/cn-team.env`**: After running the setup script, you must edit the settings file and replace all `CHANGE_ME` values with real IPs from your team table.
+
+2. **Source the settings file**: Run `source ~/cn-team.env` to load the environment variables.
+
+3. **Follow the detailed guides**: The scripts automate the initial setup, but you must follow the detailed step-by-step guides in the `docs/` folder for complete configuration.
+
+4. **Team coordination**: All machines must coordinate to fill in the team table with their IPs before editing their settings files.
+
+## Manual Steps Still Required
+
+After running the setup scripts, you still need to complete:
+
+**Mac 1:**
+- Edit dnsmasq configuration
+- Start dnsmasq service
+- Configure DNS resolution
+
+**Mac 2:**
+- Generate TLS certificates
+- Configure nginx upstream servers
+- Start nginx service
+
+**Ubuntu VMs:**
+- Copy `app.py` to the backend directory
+- Start the backend service
+- Configure DNS resolution
+- Trust the team CA certificate
+
+See the detailed guides in `docs/` for complete instructions.

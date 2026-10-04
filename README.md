@@ -25,8 +25,8 @@ LocalMesh/
 
 - **Mac 1 (Physical)**: Private DNS Server + Test Client
 - **Mac 2 (Physical)**: Edge/Reverse Proxy + Load Balancer
-- **Mac 1 VM**: Backend Server A (port 3001)
-- **Mac 2 VM**: Backend Server B (port 3002) + Test Client
+- **Mac 1 VM (Ubuntu)**: Backend Server A (port 3001)
+- **Mac 2 VM (Ubuntu)**: Backend Server B (port 3002) + Test Client
 
 ## Network Configuration
 
