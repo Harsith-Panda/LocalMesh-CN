@@ -1,6 +1,17 @@
-# LocalMesh - Private Network Service Platform
+# LocalMesh — Private Network Service Platform
 
-Computer Networks Course Project - Phase 1 & Phase 2
+A multi-node private network infrastructure project demonstrating local DNS resolution, TLS termination, reverse proxying, and load balancing across virtualized backend servers.
+
+## Architecture Overview
+
+A client resolves a private `.test` domain via a local `dnsmasq` DNS server, establishes an HTTPS connection to an `nginx` reverse proxy edge node, and receives load-balanced responses from two isolated Ubuntu backend servers.
+
+```text
+[Client] ──(DNS :53)──> [DNS Server (dnsmasq)]
+   │
+   └──(HTTPS :8443)──> [Edge Proxy (nginx + TLS)]
+                             ├──(HTTP :3001)──> [Backend Server A (Ubuntu VM)]
+                             └──(HTTP :3002)──> [Backend Server B (Ubuntu VM)]
 
 ## Chosen setup: Option A
 
