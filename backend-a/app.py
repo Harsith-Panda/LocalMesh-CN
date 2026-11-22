@@ -10,39 +10,39 @@ import json
 class BackendHandler(BaseHTTPRequestHandler):
     """Simple HTTP handler for Backend A"""
 
-    def do_GET(self):
-        """Handle GET requests"""
+    def _response(self):
+        if self.path == '/':
+            return {"service": "Backend A", "status": "running",
+                    "message": "Backend Server A is operational"}
+        if self.path == '/api/status':
+            return {"backend": "A", "status": "ok"}
+        return None
 
-        # Set headers
-        self.send_response(200)
+    def _send(self, body, status=200):
+        payload = json.dumps(body, indent=2).encode()
+        etag = '"backend-a-v1"'
+        if status == 200 and self.headers.get('If-None-Match') == etag:
+            status = 304
+            payload = b''
+        self.send_response(status)
         self.send_header('Content-Type', 'application/json')
         self.send_header('X-Backend', 'A')
         self.send_header('Cache-Control', 'max-age=60')
-        self.send_header('ETag', '"backend-a-v1"')
+        self.send_header('ETag', etag)
+        self.send_header('Content-Length', str(len(payload)))
         self.end_headers()
+        if self.command != 'HEAD':
+            self.wfile.write(payload)
 
-        # Root endpoint
-        if self.path == '/':
-            response = {
-                "service": "Backend A",
-                "status": "running",
-                "message": "Backend Server A is operational"
-            }
-            self.wfile.write(json.dumps(response, indent=2).encode())
+    def do_GET(self):
+        body = self._response()
+        self._send(body if body is not None else {"error": "Not Found"},
+                   200 if body is not None else 404)
 
-        # Status endpoint
-        elif self.path == '/api/status':
-            response = {
-                "backend": "A",
-                "status": "ok"
-            }
-            self.wfile.write(json.dumps(response, indent=2).encode())
-
-        # 404 for other paths
-        else:
-            self.send_response(404)
-            self.end_headers()
-            self.wfile.write(b'{"error": "Not Found"}')
+    def do_HEAD(self):
+        body = self._response()
+        self._send(body if body is not None else {"error": "Not Found"},
+                   200 if body is not None else 404)
 
     def log_message(self, format, *args):
         """Suppress default logging"""

@@ -5,6 +5,7 @@ This directory contains helper scripts for setup, testing, and automation.
 ## Available Scripts
 
 ### Setup Scripts
+- `setup-phase1.sh ROLE` - single entry point; run once per device with `dns`, `edge`, `backend-a`, or `backend-b`
 - `setup-mac1-dns.sh` - Install and configure dnsmasq on Your Mac (DNS Server)
 - `setup-mac2-nginx.sh` - Install and configure nginx on Manohar's Mac (Edge/Proxy)
 - `setup-ubuntu-vm-a.sh` - Install and configure Backend A on Your VM 1
@@ -15,6 +16,12 @@ This directory contains helper scripts for setup, testing, and automation.
 - `test-backend.sh` — curl `YOUR_MAC_IP:3001` and `:3002`
 - `test-https.sh` — HTTPS via the domain on :8443
 - `test-load-balancing.sh` — six requests, expect A/B alternating
+- `test-cache.sh` — shows Cache-Control/ETag and validates a conditional request
+- `capture-phase1-flow.sh` — captures the clean DNS/TCP/TLS flow for Task G
+- `verify-phase1-flow.sh` — rejects captures without SYN-ACK or TLS handshake packets
+
+Phase 2 scripts are in `scripts/phase2/`; see `scripts/phase2/README.md` for the
+extension-to-machine mapping and rollback order.
 
 Read `docs/START-HERE.md` first. These scripts do not replace the machine guides.
 
@@ -29,22 +36,22 @@ Run scripts on each machine:
 
 **Your Mac (DNS Server):**
 ```bash
-./scripts/setup-mac1-dns.sh
+./scripts/setup-phase1.sh dns
 ```
 
 **Manohar's Mac (nginx Edge):**
 ```bash
-./scripts/setup-mac2-nginx.sh
+./scripts/setup-phase1.sh edge
 ```
 
 **Your VM 1 (Backend A):**
 ```bash
-./scripts/setup-ubuntu-vm-a.sh
+./scripts/setup-phase1.sh backend-a
 ```
 
 **Your VM 2 (Backend B):**
 ```bash
-./scripts/setup-ubuntu-vm-b.sh
+./scripts/setup-phase1.sh backend-b
 ```
 
 ## What These Scripts Do
@@ -70,6 +77,15 @@ Each setup script:
 5. **UTM (Emulated VLAN)**:
    - VM that forwards 3001 → Backend A (`setup-ubuntu-vm-a.sh`)
    - **LocalMesh - 1** forwards 3002 → Backend B (`setup-ubuntu-vm-b.sh`)
+
+## Phase 1 evidence checks
+
+Run `test-cache.sh` from a trusted client after both backends are live. For packet
+evidence, set `CAPTURE_IFACE` to the active Wi-Fi interface if it is not `en0`, run
+`capture-phase1-flow.sh`, make one HTTPS request in another terminal, stop the
+capture, and run `verify-phase1-flow.sh` on the resulting pcap. The five required
+failure demonstrations are documented in `test-failure-scenarios.md` and must be
+run against the live two-Mac/UTM setup.
 
 ## Manual Steps Still Required
 

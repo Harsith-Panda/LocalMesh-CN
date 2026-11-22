@@ -181,11 +181,11 @@ before any application data. Source port is ephemeral; destination is 8443 (or 5
 Observed: TLSv1.3, issuer \texttt{CN=localmesh Local Root CA}.
 
 \paragraph{HTTP and caching.}
-Backends return JSON and \texttt{X-Backend}. \texttt{Cache-Control: max-age=60}.
-ETags differ (\texttt{backend-a-v1} vs \texttt{backend-b-v1}), so a 304 through the
-load balancer is not reliable. Review~1 can still show the headers. \texttt{curl -I}
-sends HEAD; these apps implement GET only, so HEAD on \texttt{/} is HTTP/1.0 501.
-Use GET (or \texttt{curl -D - -o /dev/null}) for status evidence.
+Backends return JSON and \texttt{X-Backend}. \texttt{Cache-Control: max-age=60} and
+ETags are returned on both GET and HEAD. A conditional request with a matching
+backend ETag returns \texttt{304 Not Modified}; because the two backends have
+different ETags, the evidence script retries until the round-robin request reaches
+the backend that issued the ETag.
 
 \paragraph{Load balancing.}
 nginx \texttt{upstream} lists both host ports, default round-robin, \texttt{max\_fails=1}.
@@ -220,13 +220,15 @@ Filed under \texttt{evidence/phase1/} (see \texttt{INDEX.md}):
   \item HTTPS verbose: TLS 1.3, team CA issuer, mixed \texttt{x-backend}.
   \item Browser on \texttt{app.localmesh.test:8443} returning JSON.
   \item Guests listening on \texttt{0.0.0.0:3001} and \texttt{:3002}.
-  \item \texttt{flow.pcap} (UDP/53 and TCP/8443).
+  \item A clean \texttt{flow.pcap} containing UDP/53, the TCP three-way handshake,
+        and the TLS handshake (captured with \texttt{scripts/capture-phase1-flow.sh}).
   \item F1: client resolver set to 8.8.8.8 $\Rightarrow$ NXDOMAIN for \texttt{app.localmesh.test}.
 \end{itemize}
 
-Still to add before the slot if missing: Wireshark stills from the pcap (DNS, handshake, ClientHello);
-F2 wrong A record; F3 one backend stopped; F4 both stopped (502); F5 wrong port;
-\texttt{openssl verify}.
+The live setup must be rerun after these source changes to refresh the dated
+screenshots and capture. Use \texttt{scripts/verify-phase1-flow.sh} to reject an
+incomplete pcap, \texttt{scripts/test-cache.sh} for the conditional 304, and the
+failure checklist in \texttt{scripts/test-failure-scenarios.md} for F2--F5.
 
 \section{Failure analysis}
 These are required Phase~1 demonstrations. They isolate layers.

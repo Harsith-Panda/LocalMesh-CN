@@ -8,14 +8,14 @@ Values from `~/cn-team.env`: `TEAM=localmesh`, `YOUR_MAC_IP=10.7.12.104`, `MANOH
 | `http/lan-ping-and-direct-backends-2026-10-04.jpg` | Ping both Macs; `X-Backend: A` on :3001; `X-Backend: B` on :3002; Cache-Control / ETag |
 | `tls/https-issuer-and-x-backend-2026-10-04.jpg` | TLSv1.3; issuer `localmesh Local Root CA`; HTTP/2; mixed A/B then some HTTP/2 501 |
 | `tls/browser-app.localmesh.test-8443-2026-10-04.jpg` | Browser on `app.localmesh.test:8443` JSON `backend: A` (pretty-print) |
-| `http/backend-a-local-2026-10-04.jpg` | Guest listen `0.0.0.0:3001`; `/api/status` A. `curl -I /` is 501 (HEAD not implemented) |
+| `http/backend-a-local-2026-10-04.jpg` | Guest listen `0.0.0.0:3001`; `/api/status` A |
 | `http/backend-b-local-2026-10-04.jpg` | Guest listen `0.0.0.0:3002`; `/api/status` B; `dig` → `10.7.2.38` |
-| `tcp/flow-dns-and-8443-2026-10-04.pcap` | tcpdump UDP/53 + TCP/8443 |
+| `tcp/flow-dns-and-8443-2026-10-04.pcap` | Older capture: DNS plus incomplete SYN attempts; not sufficient for Task G |
 | `failures/f1-wrong-client-dns-nxdomain-2026-10-04.jpg` | Client DNS `8.8.8.8`; `app.localmesh.test` NXDOMAIN |
 
-## Still missing for Review 1
+## Required live rerun after source/config changes
 
-- Wireshark screenshots of DNS / TCP handshake / TLS packets (open the `.pcap`)
+- A clean pcap and Wireshark screenshots of DNS / TCP handshake / TLS packets
 - F2 wrong A record, F3 one backend stopped, F4 both stopped (502), F5 wrong port
-- Dedicated 304 / If-None-Match shot (ETags differ: `backend-a-v1` vs `backend-b-v1`)
+- Dedicated 304 / If-None-Match shot using `scripts/test-cache.sh`
 - `openssl verify` / nginx config screenshots

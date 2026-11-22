@@ -42,6 +42,10 @@ LocalMesh/
 
 ## What to follow, in order
 
+For a clean rebuild from zero, use [FROM_SCRATCH_SETUP.md](FROM_SCRATCH_SETUP.md)
+or [FROM_SCRATCH_SETUP.pdf](FROM_SCRATCH_SETUP.pdf). It covers Phase 1 setup,
+evidence collection, cleanup, and the Phase 2 transition.
+
 1. `docs/START-HERE.md` — topology and reading order
 2. `docs/CN_Project_Doc.pdf` — official requirements (skim)
 3. `docs/architecture-phase1.md` — diagram for Review 1
@@ -77,6 +81,7 @@ Setup walkthroughs stay in `docs/` and are **not** committed.
 ### Phase 2
 - Updated architecture, configs, evidence
 - Final report and presentation
+- Implementation plan: `phase2-plan.md`
 
 ## Testing
 
