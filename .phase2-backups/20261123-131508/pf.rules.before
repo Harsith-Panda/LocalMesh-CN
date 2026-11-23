@@ -1,0 +1,3 @@
+scrub-anchor "com.apple/*" all fragment reassemble
+anchor "com.apple/*" all
+anchor "com.localmesh.phase2" all
