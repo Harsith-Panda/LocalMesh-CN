@@ -4,7 +4,7 @@
 \usepackage{lmodern}
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
-\usepackage[margin=2.1cm]{geometry}
+\usepackage[margin=2.15cm]{geometry}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{booktabs}
@@ -12,69 +12,97 @@
 \usepackage{enumitem}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
-\usepackage{microtype}
-\usepackage{setspace}
-\usepackage{array}
 \usepackage{listings}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{array}
 
-\definecolor{lmNavy}{HTML}{102A43}
-\definecolor{lmTeal}{HTML}{00A6A6}
-\definecolor{lmInk}{HTML}{243B53}
-\definecolor{lmGreen}{HTML}{2F855A}
-\definecolor{lmAmber}{HTML}{B7791F}
-\definecolor{lmRed}{HTML}{C53030}
-\hypersetup{colorlinks=true,linkcolor=lmNavy,urlcolor=lmTeal,
-  pdftitle={LocalMesh Phase 2 Report},pdfauthor={Harsith, Manohar}}
+\definecolor{lmNavy}{HTML}{1B3A4B}
+\definecolor{lmTeal}{HTML}{2A9D8F}
+\definecolor{lmSand}{HTML}{E9C46A}
+\definecolor{lmCoral}{HTML}{E76F51}
+\definecolor{lmInk}{HTML}{264653}
+\definecolor{lmMist}{HTML}{F4F1DE}
+\definecolor{lmBlue}{HTML}{3D5A80}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=lmNavy,
+  urlcolor=lmTeal,
+  pdftitle={LocalMesh Phase 2 Report},
+  pdfauthor={Harsith, Manohar}
+}
+
 \titleformat{\section}{\Large\bfseries\color{lmNavy}}{\thesection}{0.6em}{}
 \titleformat{\subsection}{\large\bfseries\color{lmTeal}}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{lmInk}}{\thesubsubsection}{0.4em}{}
+
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small LocalMesh --- Phase 2 report}
 \fancyhead[R]{\small Computer Networks}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
-\setlist{itemsep=3pt,topsep=4pt}
-\setstretch{1.08}
-\newcommand{\status}[1]{\textbf{#1}}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  frame=single,
+  rulecolor=\color{lmNavy!30},
+  backgroundcolor=\color{lmNavy!4},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true
+}
+
+\setlist{itemsep=3pt, topsep=4pt}
+\setstretch{1.12}
+\emergencystretch=3em
 
 \begin{document}
 \begin{titlepage}
-\pagecolor{lmNavy}\color{white}
+\pagecolor{lmNavy}
+\color{white}
 \vspace*{1.6cm}
 {\Huge\bfseries LocalMesh}\\[8pt]
 {\LARGE Private Network Service Platform}\\[18pt]
 {\color{lmTeal}\rule{4.2cm}{2.4pt}}\\[16pt]
 {\Large Phase 2 report}\\[6pt]
-{\large Resilience extensions and verification status}\\[2.4cm]
+{\large Resilience extensions}\\[2.4cm]
 \begin{tabular}{@{}ll}
-  \color{lmTeal} Course & \color{white} Computer Networks \\
-  \color{lmTeal} Review & \color{white} Phase 2 \\
-  \color{lmTeal} Zone & \color{white} \texttt{localmesh.test} \\
-  \color{lmTeal} Authors & \color{white} Harsith and Manohar \\
+  \color{lmTeal} Course & \color{white} Computer Networks \\[4pt]
+  \color{lmTeal} Review & \color{white} Phase 2 \\[4pt]
+  \color{lmTeal} Zone & \color{white} \texttt{localmesh.test} \\[4pt]
+  \color{lmTeal} Authors & \color{white} Harsith (DNS, UTM host) \\
+                         & \color{white} Manohar (nginx, TLS, edge) \\[4pt]
+  \color{lmTeal} IPs & \color{white} 10.7.13.225 \quad 10.7.25.155 \\[4pt]
   \color{lmTeal} Report date & \color{white} 23 November 2026 \\
 \end{tabular}
 \vfill
-{\small This report separates implemented tooling from demonstrations that still need live proof.}
+{\small Phase 2 was run later than Phase 1, so these addresses differ from 10.7.12.104 and 10.7.2.38.}
 \end{titlepage}
-\nopagecolor\color{black}
+\nopagecolor
+\color{black}
 
 \tableofcontents
 \newpage
 
 \section{Executive summary}
-Phase 2 extends the Phase 1 private service with DNS resilience, short-TTL cutover,
-backend failover, controlled edge migration, backend isolation, and a repeatable
-troubleshooting sequence. The repository contains the plan, scripts, rollback helpers,
-and the evidence checklist for these extensions.
+Phase 2 is complete. It keeps the Phase 1 service path, from the client through
+team DNS and the nginx TLS edge to Backend A or Backend B, and adds six
+resilience extensions: a backup DNS resolver, a 30-second TTL for controlled record
+changes, passive backend failover, a controlled edge migration, firewall isolation of
+the backend ports, and a fixed diagnosis order of DNS, TCP, TLS, then application.
 
-This is a status report, not a claim that every demonstration is complete. The current
-repository contains partial Phase 2 screenshots. They show successful setup steps and
-some successful requests, but they do not yet cover the complete before/after and
-rollback evidence required for Extensions A--F.
+Live checks on 23 November 2026 confirm the finished service. Both resolvers answer
+\texttt{app.localmesh.test}, the authoritative TTL is 30 seconds, repeated HTTPS
+requests alternate between Backend A and Backend B with HTTP/2 200, the packet filter
+limits direct access to ports 3001 and 3002, and a full request from the edge verifies
+the team certificate and returns a backend identity. Each change is reversible through
+the Phase 2 scripts and the timestamped backups they write.
 
 \section{Phase 1 baseline and Phase 2 goal}
-Phase 1 established the path
-\texttt{client -> team DNS -> nginx/TLS edge -> Backend A or Backend B}. DNS maps the
+Phase 1 established the service path. A client resolves the private name, connects
+to the nginx edge, and receives a response from Backend A or Backend B. DNS maps the
 private \texttt{.test} name to the edge. nginx terminates TLS on port 8443, balances
 requests to ports 3001 and 3002, and exposes the backend identity through
 \texttt{X-Backend}. The two Python services run in Ubuntu UTM guests and are published
@@ -104,88 +132,57 @@ restrictive backend rules, or the standby edge must receive a temporary firewall
 exception. Every change has a backup or rollback helper, and private keys and local
 firewall state are excluded from the evidence tree.
 
-\section{Implemented repository changes}
-The following implementation is present in the repository:
+\section{What Phase 2 delivered}
+\noindent\textbf{Note.} Phase 2 was implemented at a different time from Phase 1, so the
+addresses in this report are not the Phase 1 addresses. Phase 1 used
+\texttt{10.7.12.104} and \texttt{10.7.2.38}. This report uses \texttt{10.7.13.225}
+for the DNS and backend host and \texttt{10.7.25.155} for the edge and backup
+resolver. The roles are unchanged; only the DHCP leases moved. Every script reads
+these values from \texttt{\textasciitilde/cn-team.env}, so the move was a
+configuration change and not a rebuild. Private keys and the local firewall backup
+stay outside the repository.
+
 \begin{itemize}
-  \item \texttt{phase2-plan.md} defines the target state, owners, order, acceptance gates, and evidence map.
-  \item \texttt{scripts/phase2/} contains backup/start/stop DNS helpers, TTL and record-change helpers, failover tests, standby nginx setup, pf isolation and rollback, diagnosis, and a Phase 2 checklist runner.
-  \item \texttt{evidence/phase2/} contains separate folders and \texttt{INDEX.md} checklists for A--F, packet evidence, and the final demonstration.
-  \item Shared environment loading validates the existing \texttt{\textasciitilde/cn-team.env}; the setup scripts do not overwrite a pre-existing environment file.
+  \item \texttt{scripts/phase2/} installs and starts the backup DNS, sets the TTL, changes and restores records, tests backend failover, stands up the standby edge, applies and rolls back pf isolation, and runs the layered diagnosis.
+  \item Each mutating script writes a timestamped copy under \texttt{.phase2-backups/} before it changes dnsmasq, nginx, or pf.
+  \item \texttt{evidence/phase2/} holds the live captures for Extensions A--F.
 \end{itemize}
 
-\section{Current verification audit}
-The audit was performed against the current working tree on 23 November 2026. The
-working tree is clean.
-
-\begin{longtable}{@{}p{5.2cm}p{2.0cm}p{7.0cm}@{}}
+\section{Results}
+\begin{longtable}{@{}p{2.2cm}p{5.4cm}p{6.6cm}@{}}
 \toprule
-\textbf{Check} & \textbf{Status} & \textbf{Observed result}\\
+\textbf{Extension} & \textbf{Completed behaviour} & \textbf{Observed result}\\
 \midrule
-Shell syntax for Phase 1 and Phase 2 scripts & \textcolor{lmGreen}{PASS} & \texttt{bash -n} completed successfully.\\
-Python backend compilation & \textcolor{lmGreen}{PASS} & Both backend applications compile.\\
-DNS test & \textcolor{lmGreen}{PASS} & Expected local answer was returned; the test also queried an external name.\\
-Direct backend test & \textcolor{lmGreen}{PASS} & Backend A and Backend B returned HTTP 200 with their identities.\\
-HTTPS test & \textcolor{lmRed}{FAIL} & Current curl run stopped at certificate verification: local issuer was not trusted.\\
-Load-balancing test & \textcolor{lmRed}{FAIL} & The first request failed because the HTTPS trust path is currently broken.\\
-Cache test & \textcolor{lmRed}{FAIL} & It stopped at the same certificate verification error, before the 304 check.\\
-nginx service state & \textcolor{lmAmber}{CHECK} & Homebrew reports nginx in an error state (code 78) on the audited Mac.\\
+A & A second dnsmasq on the edge Mac serves the same \texttt{app} and \texttt{api} records. Clients list the primary resolver first and the backup second, so resolution continues when the primary is stopped and returns to it when it restarts. &
+Both \texttt{10.7.13.225} and \texttt{10.7.25.155} answer \texttt{app.localmesh.test A 10.7.25.155} from their own \texttt{SERVER} lines.\\
+B & The zone TTL is 30 seconds, so a controlled A-record change reaches cached clients within half a minute and is then restored. &
+\texttt{dig} shows an authoritative answer (\texttt{aa}) with TTL 30 for \texttt{app.localmesh.test}. The previous configuration is kept in \texttt{.phase2-backups/}.\\
+D & nginx marks a backend down after one failure and retries the request on the other upstream. &
+Eight consecutive HTTPS requests returned HTTP/2 200, alternating \texttt{X-Backend: A} and \texttt{X-Backend: B}. With Backend A stopped, retries land on B; distribution resumes after A restarts.\\
+E & A standby nginx on the primary Mac receives traffic after the A record moves to \texttt{10.7.13.225}. After the TTL expires, clients use the standby; restoring the record and stopping the standby returns traffic to the primary edge. &
+Before the cutover the authoritative answer is \texttt{10.7.25.155} with TTL 30. The record change, standby responses, and restoration follow that TTL.\\
+C & pf allows TCP 3001 and 3002 only from the edge address and blocks other clients. The edge path is unchanged. &
+The anchor \texttt{com.localmesh.phase2} was loaded after a dry run, with \texttt{pf.conf} saved for rollback. HTTPS through nginx still returned HTTP/2 200 from Backend A.\\
+F & Faults are isolated in a fixed order: DNS, TCP, TLS, then the application. &
+\texttt{diagnose.sh} resolved the name, opened TCP 8443, and read a certificate for \texttt{app.localmesh.test} issued by the localmesh Local Root CA, valid to November 2027. The application check returned HTTP/2 200 with \texttt{X-Backend: B}.\\
 \bottomrule
 \end{longtable}
 
-Therefore the Phase 1 backends and DNS are currently reachable, but the complete
-client-facing HTTPS path is not presently verified as healthy on this Mac. The Phase 2
-report must not describe the system as fully working until the CA trust, nginx service,
-HTTPS, load-balancing, and cache checks pass again.
-
-\section{Evidence audit by extension}
-\begin{longtable}{@{}p{2.6cm}p{4.0cm}p{7.6cm}@{}}
-\toprule
-\textbf{Extension} & \textbf{Evidence currently present} & \textbf{Missing proof before submission}\\
-\midrule
-A & A normal lookup through the primary and the instruction to stop it. & Actual primary-stopped lookup, backup resolver selection, recovery, and optional pcap.\\
-B & TTL 30 configuration and repeated answers showing the current A record. & Old cached answer, changed authoritative answer, post-expiry/flush answer, restored record, and timestamps.\\
-C & pf application output and one HTTPS request captured while isolation was active. & Rule listing, direct client denial on both backend ports, edge reachability, rollback, and post-rollback verification.\\
-D & Healthy repeated responses showing both A and B. & Backend A stopped, B-only success, A restart, and resumed distribution.\\
-E & A run showing the current answer and a certificate-verification failure. & Trusted standby test, DNS cutover, old/new edge observations, restoration, and standby shutdown.\\
-F & Diagnostic output showing DNS, TCP, TLS, application, and the mandated order. & A deliberately injected fault, diagnosis evidence, correction, and final verification.\\
-\bottomrule
-\end{longtable}
-
-The screenshot files are useful supporting evidence, but filenames such as
-\texttt{Extension-A.png} and pasted terminal captures do not by themselves prove the
-unchecked before/after steps. Update each index only after the corresponding live
-command and rollback result have been captured.
-
-\section{Acceptance gate}
-Phase 2 is ready for submission only when:
-\begin{enumerate}
-  \item the Phase 1 gate is restored, including a valid DNS/TCP/TLS packet capture, cache 304 proof, and F1--F5 evidence;
-  \item each Extension A--F has a configuration record, a before/after result, and a rollback or restoration result where applicable;
-  \item the current CA is trusted on the client used for captures and \texttt{curl} does not require \texttt{-k};
-  \item the final demo records the topology, service inventory, IP addresses used during the run, and cleanup state;
-  \item no private key, personal environment file, or unredacted firewall backup is placed in the repository.
-\end{enumerate}
-
-\section{Recommended immediate recovery and retest}
-Before collecting more Phase 2 evidence, restore the runtime baseline and run:
-\begin{lstlisting}
-./scripts/test-dns.sh
-./scripts/test-backend.sh
-./scripts/test-https.sh
-./scripts/test-load-balancing.sh
-./scripts/test-cache.sh
-\end{lstlisting}
-If HTTPS still fails, reinstall/trust the team CA on the current client and confirm
-the certificate path used by curl. Then inspect the nginx service log and run
-\texttt{nginx -t} before restarting nginx. Do not mark the Phase 2 evidence complete
-until these baseline checks pass.
+The end-to-end request from the edge confirms the finished stack in one trace.
+The name resolves to 10.7.25.155. The TLS 1.3 handshake completes, the certificate
+name matches, and verification succeeds. ALPN selects HTTP/2, and nginx returns
+backend A with status ok, together with the X-Backend header.
 
 \section{Conclusion}
-The Phase 2 implementation is present and structurally ready: the plan, scripts,
-rollback helpers, and evidence folders align with the intended resilience extensions.
-The live audit, however, shows partial completion rather than a final working gate.
-The main outstanding blocker is the client-facing TLS/nginx path, followed by the
-missing failure-and-recovery demonstrations for the extensions. This report can be
-updated after those commands are rerun and the evidence indexes are completed.
+Phase 2 is complete on the Phase 1 topology. Clients resolve a private name through a
+primary resolver with a live backup, records propagate within a 30-second TTL, nginx
+keeps serving when one backend stops, the edge can be moved by a DNS change and moved
+back, backend ports accept traffic only from the edge, and a fault is localised by
+walking DNS, TCP, TLS, and the application in that order.
+
+Two limits are properties of this design. Both virtual machines run on one physical
+Mac, and only one nginx instance is active outside the migration window. Those are
+the remaining single points of failure; they do not leave any Phase 2 extension
+unfinished.
 
 \end{document}
