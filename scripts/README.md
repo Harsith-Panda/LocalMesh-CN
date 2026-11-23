@@ -58,7 +58,7 @@ Run scripts on each machine:
 
 Each setup script:
 - Installs required dependencies (dnsmasq, nginx, python3)
-- Creates the shared settings file template (`~/cn-team.env`)
+- Loads and validates the existing shared settings file (`~/cn-team.env`)
 - Gathers network information (IP, gateway, hostname)
 - Configures firewall (on Ubuntu VMs)
 - Creates necessary directories
@@ -66,7 +66,7 @@ Each setup script:
 
 ## Important Notes
 
-1. **Edit `~/cn-team.env`**: After running the setup script, you must edit the settings file and replace all `CHANGE_ME` values with real IPs from your team table.
+1. **Prepare `~/cn-team.env` first**: The setup scripts never create, overwrite, or change this file. Put the current physical Mac IPs in it before running a role script.
 
 2. **Source the settings file**: Run `source ~/cn-team.env` to load the environment variables.
 

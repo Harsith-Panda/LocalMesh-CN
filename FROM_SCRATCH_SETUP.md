@@ -31,17 +31,19 @@ Keep the IPs stable if possible. Disable VPN, iCloud Private Relay, and DNS-rout
 
 ## 1. Prepare each machine
 
-Copy or clone this repository onto both Macs and both Ubuntu VMs. On every machine:
+Copy or clone this repository onto both Macs and both Ubuntu VMs. On every machine,
+create the settings file only if it does not already exist:
 
 ~~~
 cd /path/to/LocalMesh
 chmod +x scripts/*.sh scripts/phase2/*.sh
-cat > ~/cn-team.env <<'EOF'
+if [[ ! -f ~/cn-team.env ]]; then cat > ~/cn-team.env <<'EOF'
 export TEAM=localmesh
 export YOUR_MAC_IP=<Your-Mac-Wi-Fi-IP>
 export MANOHAR_MAC_IP=<Manohar-Mac-Wi-Fi-IP>
 export COLLEGE_DNS=8.8.8.8
 EOF
+fi
 source ~/cn-team.env
 echo "$TEAM $YOUR_MAC_IP $MANOHAR_MAC_IP $COLLEGE_DNS"
 ~~~

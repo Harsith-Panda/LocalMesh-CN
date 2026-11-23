@@ -4,9 +4,11 @@
 # Usage: ./setup-ubuntu-vm-a.sh
 
 set -e  # Exit on error
+source "$(dirname "$0")/setup-common.sh"
 
 echo "=== Ubuntu VM A Backend A Setup ==="
 echo ""
+require_team_env
 
 # Check if running on Linux
 if [[ "$OSTYPE" != "linux-gnu"* ]]; then
@@ -43,20 +45,8 @@ else
 fi
 echo ""
 
-# Step 4: Create settings file template
-echo "Step 4: Creating settings file template..."
-cat > ~/cn-team.env <<'EOF'
-export TEAM=localmesh
-export YOUR_MAC_IP=10.7.12.104
-export MANOHAR_MAC_IP=10.7.2.38
-export COLLEGE_DNS=8.8.8.8
-EOF
-echo "✓ Settings file template created at ~/cn-team.env"
-echo "   Please edit this file with real values before continuing"
-echo ""
-
-# Step 5: Network info
-echo "Step 5: Gathering network information..."
+# Step 4: Network info
+echo "Step 4: Gathering network information..."
 echo "IP: $(ip addr show | grep 'inet ' | grep -v 127.0.0.1 | awk '{print $2}' | cut -d'/' -f1)"
 echo "Gateway: $(ip route show default | awk '{print $3}')"
 echo "Hostname: $(hostname)"
@@ -78,7 +68,7 @@ echo "=== Setup Partially Complete ==="
 echo ""
 echo "Next steps:"
 echo "1. Confirm Emulated VLAN + host 3001 → guest 3001 (Backend A VM, not LocalMesh - 1)"
-echo "2. Edit ~/cn-team.env with YOUR_MAC_IP and MANOHAR_MAC_IP"
+echo "2. Confirm ~/cn-team.env has the current physical Mac IPs"
 echo "3. Run: source ~/cn-team.env"
 echo "4. Copy backend-a/app.py to ~/cn-backend/app.py"
 echo "5. Run: cd ~/cn-backend && python3 app.py"

@@ -12,6 +12,7 @@ A client resolves a private `.test` domain via a local `dnsmasq` DNS server, est
    └──(HTTPS :8443)──> [Edge Proxy (nginx + TLS)]
                              ├──(HTTP :3001)──> [Backend Server A (Ubuntu VM)]
                              └──(HTTP :3002)──> [Backend Server B (Ubuntu VM)]
+```
 
 ## Chosen setup: Option A
 
