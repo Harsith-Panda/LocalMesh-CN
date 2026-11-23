@@ -1,10 +1,15 @@
 # Requires tectonic (brew install tectonic) or pdflatex + latexmk
-.PHONY: all report architecture clean
+.PHONY: all report phase2 architecture clean
 
-all: report architecture
+all: report phase2 architecture
 
 report: phase1-report.pdf
 architecture: architecture-phase1.pdf
+
+phase2: phase2-report.pdf
+
+phase2-report.pdf: phase2-report.tex
+	tectonic phase2-report.tex
 
 phase1-report.pdf: phase1-report.tex diagrams.tex
 	tectonic phase1-report.tex
