@@ -8,4 +8,4 @@ mkdir -p "$(dirname "$OUT")"
 echo "Capturing to $OUT (Ctrl-C after the request completes)."
 echo "In another terminal run: /usr/bin/curl -sv https://app.$TEAM.test:8443/api/status"
 sudo tcpdump -i "$CAPTURE_IFACE" -s 0 -w "$OUT" \
-  "(udp port 53) or (tcp host $MANOHAR_MAC_IP and port 8443)"
+  "udp port 53 or (host $MANOHAR_MAC_IP and tcp port 8443)"
